@@ -1,0 +1,14 @@
+random meme
+pick specific meme
+pick specific own meme, autocrop?
+whitelist of website to swap faces
+or, blacklist of website to not swap.
+
+clmtrackr
+
+
+1. get list of all images on page
+    javascript
+2. use api to find faces
+
+3. swap, jquery
