@@ -1,64 +1,80 @@
-// converts all the images on the page to canvases of the same size and img
-function convert(imgs) {
-    while (imgs.length > 0) {
-        convertImageToCanvas(imgs[0]);
-    }
+main();
 
-    overlayImages(30, 50);
+function main() {
+    var imgs = document.getElementsByTagName('img');
+    convertTo(imgs, loadImage, overlayImage);
 }
 
-// converts the given image to canvas
-function convertImageToCanvas(image) {
-    debugger;
-
-    var canvas = document.createElement("canvas");
-    canvas.width = image.width;
-    canvas.height = image.height;
-    canvas.getContext("2d").drawImage(image, 0, 0);
-    $(image).replaceWith(canvas);
-}
-
-var imgs = document.getElementsByTagName("img");
-convert(imgs);
-
-function loadImage(src, onload) {
+function loadImage(src) {
     // http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
     var img = new Image();
     img.src = src;
     return img;
 }
 
-function resize(img) {
+function convertTo(imgs, load, overlay) {
+    for (var i=0; i<imgs.length; i++) {
+        debugger;
+        $(imgs[i]).wrap("<div class='memeWrapper'></div>");
+    }
+
+    var img = load("http://introcs.cs.princeton.edu/java/31datatype/peppers.jpg");
+
+    overlay(img, function() {
+        return [10, 20, 50, 70]; },
+        formatOverlay);
+}
+
+function overlayImage(img, getDims, setCSS) {
+    var cvs = document.getElementsByClassName("memeWrapper");
+    for (var i=0; i<cvs.length; i++) {
+        $(cvs[i]).appendChild(img.wrap("<div class='memeOverlay'></div>"));
+    }
+
+    setCSS(getDims(), resize, alignOverlay);
+}
+
+/**
+ * @param dims  array of array of numbers where
+ * - [0] : x
+ * - [1] : y
+ * - [2] : width
+ * - [3] : height
+ */
+function formatOverlay(dims, resize, align) {
+        var cvs = document.getElementsByClassName("memeOverlay");
+        for (var i=0; i<cvs.length; i++) {
+            align(resize(cvs[i], dims[2], dims[3]), dims[0], dims[1]);
+        }
+}
+
+function resize(modDiv, nw, nh) {
+    var img = $('img')[0];
     var w = img.width;
     var h = img.height;
 
-    var neww = 200;
-    var newh = 200;
-
     if (w > h) {
-        var r = neww/w;
-        nh = r * h;
-        img.width = neww;
-        img.height = newh;
+        var r = nw/w;
+        modDiv.width = nw;
+        modDiv.height = r * h;
     }
     else {
-        var r = newh/h;
-        neww = r * w;
-        img.width = neww;
-        img.height = newh;
+        var r = nh/h;
+        modDiv.width = r * w;
+        modDiv.height = nh;
     }
-    
-    return img;
+
+    modDiv.style.backgroundImage = "url('" + img.src + "')";
+    modDiv.style.backgroundSize = modDiv.width + "px " + modDiv.height + "px";
+    modDiv.style.backgroundRepeat = "no-repeat";
+
+    img.remove();
+
+    return modDiv;
 }
 
-function overlayImages(x, y) {
-    var cvs = document.getElementsByTagName("canvas");
-    var toLoad = resize(loadImage('http://introcs.cs.princeton.edu/java/31datatype/peppers.jpg'));
-
-    for (var i=0; i<cvs.length; i++) {
-        cvs[i].getContext("2d").drawImage(toLoad, x, y);
-    }
-
-    //$('canvas').append("<img src='" + img.src + "'height='300', width='300'>");
-    //image.append("<img src='" + imgPath + "' height='300', width='300'>");
+function alignOverlay(modDiv, x, y) {
+    modDiv.style.left = x + "px";
+    modDiv.style.top = y + "px";
+    modDiv.style.position = "relative";
 }
