@@ -1,80 +1,97 @@
-main();
+main(loadImage);
 
-function main() {
-    var imgs = document.getElementsByTagName('img');
-    convertTo(imgs, loadImage, overlayImage);
+function main(load) {
+    var img = load("http://introcs.cs.princeton.edu/java/31datatype/peppers.jpg", convertTo);
 }
 
-function loadImage(src) {
-    // http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
+function loadImage(src, converting) {
+    var imgs = document.getElementsByTagName('img');
     var img = new Image();
     img.src = src;
-    return img;
+    img.onload = function() {
+        converting(img, imgs, overlayImage);
+    }
 }
 
-function convertTo(imgs, load, overlay) {
+function convertTo(img, imgs, overlay) {
     for (var i=0; i<imgs.length; i++) {
-        debugger;
         $(imgs[i]).wrap("<div class='memeWrapper'></div>");
+        var targetImage = $(imgs[i]).parent();
+
+        overlay(img, imageToDiv, targetImage, imgs[i], function() {
+            return [90, 20, 50, 100]; },
+            alignOverlay,
+            resize);
     }
-
-    var img = load("http://introcs.cs.princeton.edu/java/31datatype/peppers.jpg");
-
-    overlay(img, function() {
-        return [10, 20, 50, 70]; },
-        formatOverlay);
 }
 
-function overlayImage(img, getDims, setCSS) {
-    var cvs = document.getElementsByClassName("memeWrapper");
-    for (var i=0; i<cvs.length; i++) {
-        $(cvs[i]).appendChild(img.wrap("<div class='memeOverlay'></div>"));
-    }
+function imageToDiv(targetImage, targetConvert) {
+    var md = $(targetImage);
 
-    setCSS(getDims(), resize, alignOverlay);
+
+    md.css("width", targetConvert.width);
+    md.css("height", targetConvert.height);
+    md.css("background-image", "url('" + targetConvert.src + "')");
+    md.css("background-size", targetConvert.width + "px " + targetConvert.height + "px");
+    md.css("background-repeat", "no-repeat");
+    md.css("position", "relative");
+
+    targetConvert.width = 0;
+    targetConvert.height = 0;
 }
 
-/**
- * @param dims  array of array of numbers where
- * - [0] : x
- * - [1] : y
- * - [2] : width
- * - [3] : height
- */
-function formatOverlay(dims, resize, align) {
-        var cvs = document.getElementsByClassName("memeOverlay");
-        for (var i=0; i<cvs.length; i++) {
-            align(resize(cvs[i], dims[2], dims[3]), dims[0], dims[1]);
-        }
+function overlayImage(img, toDiv,
+    targetImage, targetConvert, getDims, align, resize) {
+    var p = $(img).wrap("<div class='memeOverlay'></div>").parent();
+    var oldw = img.width;
+    var oldh = img.height;
+    $(targetImage).append(p);
+
+    toDiv(targetImage, targetConvert);
+
+    /*
+     * dims  array of array of numbers where
+     * - [0] : x
+     * - [1] : y
+     * - [2] : width
+     * - [3] : height
+     */
+    var dims = getDims();
+
+    align(resize(p, img, oldw, oldh, dims[2], dims[3]), dims[0], dims[1]);
 }
 
-function resize(modDiv, nw, nh) {
-    var img = $('img')[0];
-    var w = img.width;
-    var h = img.height;
+function resize(modDiv, img, oldw, oldh, nw, nh) {
+    var nimg = $(img);
+    var md = $(modDiv);
 
-    if (w > h) {
-        var r = nw/w;
-        modDiv.width = nw;
-        modDiv.height = r * h;
+
+    if (oldw > oldh) {
+        var r = nw/oldw;
+        var neww = nw;
+        var newh = r * oldh;
+        md.css("width", neww + "px");
+        md.css("height", newh + "px");
     }
     else {
-        var r = nh/h;
-        modDiv.width = r * w;
-        modDiv.height = nh;
+        var r = nh/oldh;
+        var neww = r * oldw;
+        var newh = nh;
+        md.css("width", neww + "px");
+        md.css("height", newh + "px");
     }
 
-    modDiv.style.backgroundImage = "url('" + img.src + "')";
-    modDiv.style.backgroundSize = modDiv.width + "px " + modDiv.height + "px";
-    modDiv.style.backgroundRepeat = "no-repeat";
-
+    md.css("background-image", "url('" + img.src + "')");
+    md.css("background-size", neww + "px " + newh + "px");
+    md.css("background-repeat", "no-repeat");
+    debugger;
     img.remove();
 
-    return modDiv;
+    return md;
 }
 
-function alignOverlay(modDiv, x, y) {
-    modDiv.style.left = x + "px";
-    modDiv.style.top = y + "px";
-    modDiv.style.position = "relative";
+function alignOverlay(md, x, y) {
+    md.css("left", x + "px");
+    md.css("top", y + "px");
+    md.css("position", "absolute");
 }
