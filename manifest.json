@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
 
-  "name": "Getting started example",
+  "name": "Memeswapper",
   "description": "This extension shows a Google Image search result for the current page",
   "version": "1.0",
   "content_scripts": [
     {
-        "matches": ["file:///Users/yueshi/Repos/memeswapper/test.html"],
-        "js": ["jquery-2.2.2.js", "convert.js", "library.js"]
+        "matches": ["http://*/*", "https://*/*"],
+        "js": ["jquery-2.2.2.js", "convert.js"]
     }
 ],
   "browser_action": {
@@ -17,6 +17,11 @@
   },
   "permissions": [
     "activeTab",
-    "https://ajax.googleapis.com/"
-  ]
+    "https://ajax.googleapis.com/",
+	"storage"
+  ],
+  "options_ui": {
+  "page": "options.html",
+  "chrome_style": true
+  } 
 }
