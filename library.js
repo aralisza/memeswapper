@@ -1,0 +1,1 @@
+var lib = ["./test.png"];
