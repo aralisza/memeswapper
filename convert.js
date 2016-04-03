@@ -1,7 +1,7 @@
 main(loadImage);
 
 function main(load) {
-    load("http://i1214.photobucket.com/albums/cc500/violoncellox/01.png", convertTo)
+    load("http://i1214.photobucket.com/albums/cc500/violoncellox/14.png", convertTo)
 }
 
 function loadImage(src, converting) {
