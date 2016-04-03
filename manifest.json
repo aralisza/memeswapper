@@ -7,7 +7,11 @@
   "content_scripts": [
     {
         "matches": ["http://*/*", "https://*/*", "http://aralisza.github.io/memeswapper/test.html"],
+<<<<<<< HEAD
         "js": ["jquery-2.2.2.js", "convert.js"]
+=======
+        "js": ["jquery-2.2.2.js", "convert.js", "getBounds.js", "tracking/build/tracking-min.js", "tracking/build/data/face-min.js", "tracking/build/data/eye-min.js", "tracking/build/data/mouth-min.js"]
+>>>>>>> master
     }
 ],
   "browser_action": {
