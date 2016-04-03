@@ -1,7 +1,7 @@
 main(loadImage);
 
 function main(load) {
-    var img = load("http://introcs.cs.princeton.edu/java/31datatype/peppers.jpg", convertTo);
+    load("http://i1214.photobucket.com/albums/cc500/violoncellox/01.png", convertTo)
 }
 
 function loadImage(src, converting) {
@@ -9,61 +9,62 @@ function loadImage(src, converting) {
     var img = new Image();
     img.src = src;
     img.onload = function() {
-        converting(img, imgs, overlayImage);
+        converting(img, imgs, getBounds);
     }
 }
 
-function convertTo(img, imgs, overlay) {
-    for (var i=0; i<imgs.length; i++) {
+function convertTo(img, imgs, getDims) {
+    for (var i=0; i<imgs.length; i+=2) {
+        imgs[i].id = "img";
         $(imgs[i]).wrap("<div class='memeWrapper'></div>");
         var targetImage = $(imgs[i]).parent();
-
-        overlay(img, imageToDiv, targetImage, imgs[i], function() {
-            return [90, 20, 50, 100]; },
-            alignOverlay,
-            resize);
+        var p = $(img).wrap("<div class='memeOverlay'></div>").parent();
+        $(targetImage).append(p);
+        getDims(img, targetImage, imgs[i], alignOverlay, resize, p);
     }
 }
 
-function imageToDiv(targetImage, targetConvert) {
-    var md = $(targetImage);
+function getBounds(img, targetImage, targetConvert, align, resize, p) {
+    var results = [];
 
+    var tracker = new tracking.ObjectTracker(['face']);
+    tracker.setStepSize(1.7);
 
-    md.css("width", targetConvert.width);
-    md.css("height", targetConvert.height);
-    md.css("background-image", "url('" + targetConvert.src + "')");
-    md.css("background-size", targetConvert.width + "px " + targetConvert.height + "px");
-    md.css("background-repeat", "no-repeat");
-    md.css("position", "relative");
+    tracking.track('#img', tracker);
 
-    targetConvert.width = 0;
-    targetConvert.height = 0;
+    tracker.on('track', function(event) {
+        if (event.data.length === 0) {
+
+            return results;
+        }
+        event.data.forEach(function(rect) {
+            var arr = [rect.x, rect.y, rect.width, rect.height];
+            console.log(arr);
+
+            plz(p, img, arr, imageToDiv, align, resize, targetConvert, targetImage);
+        });
+        // var rect = event.data[0];
+        // var arr = [rect.x, rect.y, rect.width, rect.height];
+        // console.log(arr);
+        //
+        // plz(p, img, arr, imageToDiv, align, resize, targetConvert, targetImage);
+    });
+
+    console.log(results);
 }
 
-function overlayImage(img, toDiv,
-    targetImage, targetConvert, getDims, align, resize) {
-    var p = $(img).wrap("<div class='memeOverlay'></div>").parent();
-    var oldw = img.width;
-    var oldh = img.height;
-    $(targetImage).append(p);
+function plz(p, img, dims, toDiv, align, resize, targetConvert, targetImage) {
 
+    align(resize(p, img, dims[2], dims[3]), dims[0], dims[1]);
     toDiv(targetImage, targetConvert);
-
-    /*
-     * dims  array of array of numbers where
-     * - [0] : x
-     * - [1] : y
-     * - [2] : width
-     * - [3] : height
-     */
-    var dims = getDims();
-
-    align(resize(p, img, oldw, oldh, dims[2], dims[3]), dims[0], dims[1]);
 }
 
-function resize(modDiv, img, oldw, oldh, nw, nh) {
+function resize(modDiv, img, nw, nh) {
+
     var nimg = $(img);
     var md = $(modDiv);
+    var oldw = img.width;
+    var oldh = img.height;
 
 
     if (oldw > oldh) {
@@ -94,4 +95,19 @@ function alignOverlay(md, x, y) {
     md.css("left", x + "px");
     md.css("top", y + "px");
     md.css("position", "absolute");
+}
+
+function imageToDiv(targetImage, targetConvert) {
+    var md = $(targetImage);
+
+    md.css("width", targetConvert.width);
+    md.css("height", targetConvert.height);
+    md.css("background-image", "url('" + targetConvert.src + "')");
+    md.css("background-size", targetConvert.width + "px " + targetConvert.height + "px");
+    md.css("background-repeat", "no-repeat");
+    md.css("position", "relative");
+    md.css("display", "inline-block");
+    debugger;
+    targetConvert.width = 1;
+    targetConvert.height = 1;
 }
