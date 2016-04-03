@@ -84,7 +84,7 @@ function resize(modDiv, img, oldw, oldh, nw, nh) {
     md.css("background-image", "url('" + img.src + "')");
     md.css("background-size", neww + "px " + newh + "px");
     md.css("background-repeat", "no-repeat");
-    debugger;
+
     img.remove();
 
     return md;
