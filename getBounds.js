@@ -8,10 +8,14 @@ window.onload = function() {
     tracking.track('#img', tracker);
 
     tracker.on('track', function(event) {
+		try {
         event.data.forEach(function(rect) {
         // window.alert([rect.x, rect.y, rect.width, rect.height]);
         results.push([rect.x, rect.y, rect.width, rect.height]);
-        });
+        })
+		}
+		catch(err) {
+			results.push([])};
     });
 
     /*
@@ -27,5 +31,6 @@ window.onload = function() {
     };
     */
     console.log(results);
+	window.alert(results);
     return results;
 };
