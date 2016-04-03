@@ -6,8 +6,8 @@
   "version": "1.0",
   "content_scripts": [
     {
-        "matches": ["file:///Users/yueshi/Repos/memeswapper/test.html"],
-        "js": ["jquery-2.2.2.js", "convert.js", "library.js"]
+        "matches": ["http://*/*", "https://*/*"],
+        "js": ["jquery-2.2.2.js", "convert.js"]
     }
 ],
   "browser_action": {
