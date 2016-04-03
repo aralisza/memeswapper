@@ -1,64 +1,97 @@
-// converts all the images on the page to canvases of the same size and img
-function convert(imgs) {
-    while (imgs.length > 0) {
-        convertImageToCanvas(imgs[0]);
-    }
+main(loadImage);
 
-    overlayImages(30, 50);
+function main(load) {
+    var img = load("http://introcs.cs.princeton.edu/java/31datatype/peppers.jpg", convertTo);
 }
 
-// converts the given image to canvas
-function convertImageToCanvas(image) {
-    debugger;
-
-    var canvas = document.createElement("canvas");
-    canvas.width = image.width;
-    canvas.height = image.height;
-    canvas.getContext("2d").drawImage(image, 0, 0);
-    $(image).replaceWith(canvas);
-}
-
-var imgs = document.getElementsByTagName("img");
-convert(imgs);
-
-function loadImage(src, onload) {
-    // http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
+function loadImage(src, converting) {
+    var imgs = document.getElementsByTagName('img');
     var img = new Image();
     img.src = src;
-    return img;
+    img.onload = function() {
+        converting(img, imgs, overlayImage);
+    }
 }
 
-function resize(img) {
-    var w = img.width;
-    var h = img.height;
+function convertTo(img, imgs, overlay) {
+    for (var i=0; i<imgs.length; i++) {
+        $(imgs[i]).wrap("<div class='memeWrapper'></div>");
+        var targetImage = $(imgs[i]).parent();
 
-    var neww = 200;
-    var newh = 200;
+        overlay(img, imageToDiv, targetImage, imgs[i], function() {
+            return [90, 20, 50, 100]; },
+            alignOverlay,
+            resize);
+    }
+}
 
-    if (w > h) {
-        var r = neww/w;
-        nh = r * h;
-        img.width = neww;
-        img.height = newh;
+function imageToDiv(targetImage, targetConvert) {
+    var md = $(targetImage);
+
+
+    md.css("width", targetConvert.width);
+    md.css("height", targetConvert.height);
+    md.css("background-image", "url('" + targetConvert.src + "')");
+    md.css("background-size", targetConvert.width + "px " + targetConvert.height + "px");
+    md.css("background-repeat", "no-repeat");
+    md.css("position", "relative");
+
+    targetConvert.width = 0;
+    targetConvert.height = 0;
+}
+
+function overlayImage(img, toDiv,
+    targetImage, targetConvert, getDims, align, resize) {
+    var p = $(img).wrap("<div class='memeOverlay'></div>").parent();
+    var oldw = img.width;
+    var oldh = img.height;
+    $(targetImage).append(p);
+
+    toDiv(targetImage, targetConvert);
+
+    /*
+     * dims  array of array of numbers where
+     * - [0] : x
+     * - [1] : y
+     * - [2] : width
+     * - [3] : height
+     */
+    var dims = getDims();
+
+    align(resize(p, img, oldw, oldh, dims[2], dims[3]), dims[0], dims[1]);
+}
+
+function resize(modDiv, img, oldw, oldh, nw, nh) {
+    var nimg = $(img);
+    var md = $(modDiv);
+
+
+    if (oldw > oldh) {
+        var r = nw/oldw;
+        var neww = nw;
+        var newh = r * oldh;
+        md.css("width", neww + "px");
+        md.css("height", newh + "px");
     }
     else {
-        var r = newh/h;
-        neww = r * w;
-        img.width = neww;
-        img.height = newh;
+        var r = nh/oldh;
+        var neww = r * oldw;
+        var newh = nh;
+        md.css("width", neww + "px");
+        md.css("height", newh + "px");
     }
-    
-    return img;
+
+    md.css("background-image", "url('" + img.src + "')");
+    md.css("background-size", neww + "px " + newh + "px");
+    md.css("background-repeat", "no-repeat");
+
+    img.remove();
+
+    return md;
 }
 
-function overlayImages(x, y) {
-    var cvs = document.getElementsByTagName("canvas");
-    var toLoad = resize(loadImage('http://introcs.cs.princeton.edu/java/31datatype/peppers.jpg'));
-
-    for (var i=0; i<cvs.length; i++) {
-        cvs[i].getContext("2d").drawImage(toLoad, x, y);
-    }
-
-    //$('canvas').append("<img src='" + img.src + "'height='300', width='300'>");
-    //image.append("<img src='" + imgPath + "' height='300', width='300'>");
+function alignOverlay(md, x, y) {
+    md.css("left", x + "px");
+    md.css("top", y + "px");
+    md.css("position", "absolute");
 }
