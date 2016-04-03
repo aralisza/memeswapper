@@ -19,9 +19,7 @@ function convertImageToCanvas(image) {
 }
 
 var imgs = document.getElementsByTagName("img");
-
 convert(imgs);
-//convertCanvas(convert(imgs));
 
 function loadImage(src, onload) {
     // http://www.thefutureoftheweb.com/blog/image-onload-isnt-being-called
@@ -61,18 +59,6 @@ function overlayImages(x, y) {
         cvs[i].getContext("2d").drawImage(toLoad, x, y);
     }
 
-    convertCanvas(cvs);
-}
-
-function convertCanvas(canvases) {
-    for (var i=0; i<canvases.length; i++) {
-        convertCanvasToImage(canvases[i]);
-    }
-}
-
-// Converts canvas to an image
-function convertCanvasToImage(canvas) {
-    var image = new Image();
-    image.src = canvas.toDataURL("image/png");
-    return image;
+    //$('canvas').append("<img src='" + img.src + "'height='300', width='300'>");
+    //image.append("<img src='" + imgPath + "' height='300', width='300'>");
 }
